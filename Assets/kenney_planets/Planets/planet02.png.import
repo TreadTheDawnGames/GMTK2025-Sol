@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://clfohqld26xv0"
-path="res://.godot/imported/ship3.svg-7547c7e69be1ef0f8ab46e51687bfa97.ctex"
+uid="uid://bk7d1uwiwf5vm"
+path="res://.godot/imported/planet02.png-5eb0660c021a092966fbc676cf6ac5d3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/ShipsSVG/ship3.svg"
-dest_files=["res://.godot/imported/ship3.svg-7547c7e69be1ef0f8ab46e51687bfa97.ctex"]
+source_file="res://Assets/kenney_planets/Planets/planet02.png"
+dest_files=["res://.godot/imported/planet02.png-5eb0660c021a092966fbc676cf6ac5d3.ctex"]
 
 [params]
 
@@ -32,6 +32,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false
