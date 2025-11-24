@@ -192,7 +192,7 @@ static func comma_separated_string(num : int):
 
 func update_points_display() -> void:
 	if player:
-		var points_text = comma_separated_string(player.points) + " * [color=red]" + comma_separated_string(player.mult) + "[/color]"
+		var points_text = comma_separated_string(PointsManager.points) + " * [color=red]" + comma_separated_string(PointsManager.mult) + "[/color]"
 		points_label.text = points_text
 
 func update_collectable_counts() -> void:
