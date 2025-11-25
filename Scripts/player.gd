@@ -81,7 +81,7 @@ var current_state: State = State.READY_TO_AIM
 var BoostCount: int = 3:
 	get: return BoostCount
 	set(value):
-		var old_value = BoostCount
+		#var _old_value = BoostCount
 		BoostCount = value
 		if(BoostCount == 0):
 			Sprite.frame_coords.y = 1
@@ -144,7 +144,7 @@ static var isBeingSaved : bool = false
 @export var softlockTime : float = 3.0
 static var doNotSave : bool = false
 
-#region Engine funcs
+#region Godot funcs
 func _ready() -> void:
 	hud = get_tree().root.get_node("Game/HUDLayer/GameHUD")
 	#TutorialManager.show_how_to_play(hud)
