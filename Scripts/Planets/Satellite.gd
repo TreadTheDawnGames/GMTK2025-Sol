@@ -69,15 +69,14 @@ func on_bounce(player: Player) -> void:
 	
 	#this adds points of the player bounces off a satellite
 	player.current_skips_available += 1
-	PointNumbers.display_number(player.mult, player.point_numbers_origin.global_position, 1)
-	player.mult *= 2
+	PointsManager.multiply_mult(2)
+	#PointNumbers.display_number(player.mult, player.point_numbers_origin.global_position, 1)
+	#player.mult *= 2
 
 # This function handles the logic for when the satellite is destroyed.
 func on_hit(player : Player) -> void:
 	# This adds 3 points to the player's score
-	player.points += 3
-	# This displays the number "3" at the satellite's position to give visual feedback
-	PointNumbers.display_number(3, global_position, 0)
+	PointsManager.add_points(3)
 	
 	# This plays a collision sound at the satellite's current location
 	audio_handler.PlaySoundAtGlobalPosition(Sounds.ShipCollide, global_position)

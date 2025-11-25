@@ -1,8 +1,10 @@
-[gd_scene load_steps=21 format=3 uid="uid://cslq0v6w7x80a"]
+[gd_scene load_steps=23 format=3 uid="uid://cslq0v6w7x80a"]
 
 [ext_resource type="Script" uid="uid://dton838gyavdl" path="res://Scripts/player.gd" id="1_player"]
 [ext_resource type="Texture2D" uid="uid://b3yadhtuplhg2" path="res://Assets/kenney_space-shooter-extension/AAA-ChosenKenneySpace/spaceShips_001.png" id="2_ship_tex"]
+[ext_resource type="Script" uid="uid://d1udmwryf7od6" path="res://Scripts/Effects/ShipTrailManager.gd" id="2_yoq75"]
 [ext_resource type="Texture2D" uid="uid://dilwn41tsch6s" path="res://Assets/spaceShips_001_normal2-export.png" id="3_bhhdu"]
+[ext_resource type="Script" uid="uid://dq27i6g552y35" path="res://Scripts/Effects/VisualTrajectoryManager.gd" id="3_ksbbd"]
 [ext_resource type="Texture2D" uid="uid://b86vrmxx8oexw" path="res://Assets/kenney_simple-space/AAA-ChosenKenney/effect_gray.png" id="3_nn08x"]
 [ext_resource type="Script" uid="uid://dwottdnvtkjgy" path="res://Scripts/particle_effect.gd" id="3_particles"]
 [ext_resource type="Script" uid="uid://dgc8vmme70xjb" path="res://addons/trail_2d/trail_2d.gd" id="4_52ee3"]
@@ -60,6 +62,12 @@ launch_power = 400.0
 max_pull_distance = 300.0
 boost_strength = 1500.0
 
+[node name="TrailManager" type="Node2D" parent="."]
+script = ExtResource("2_yoq75")
+
+[node name="AimManager" type="Node2D" parent="."]
+script = ExtResource("3_ksbbd")
+
 [node name="Sprite2D" type="Sprite2D" parent="."]
 rotation = -1.5708
 scale = Vector2(0.454, 0.454)
@@ -98,8 +106,6 @@ begin_cap_mode = 2
 end_cap_mode = 2
 script = ExtResource("4_52ee3")
 length = 21
-
-[node name="Line2D" type="Line2D" parent="."]
 
 [node name="BoostParticles-Explosion" type="CPUParticles2D" parent="."]
 position = Vector2(-43, 0)
@@ -183,7 +189,7 @@ script = ExtResource("5_audio")
 
 [node name="AudioListener2D" type="AudioListener2D" parent="."]
 
-[node name="PointNumbersOrigin" type="Node2D" parent="."]
+[node name="PointNumbersOrigin" type="Marker2D" parent="."]
 
 [node name="AimLine" type="Line2D" parent="."]
 visible = false
@@ -194,3 +200,5 @@ width = 40.0
 gradient = SubResource("Gradient_megsn")
 texture = SubResource("AtlasTexture_megsn")
 texture_mode = 1
+
+[node name="VisualTrajectoryLine" type="Line2D" parent="."]

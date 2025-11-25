@@ -10,9 +10,9 @@ config_version=5
 
 [application]
 
-config/name="GMTK2025-LoopTake2"
+config/name="GMTK2025-SOL"
 run/main_scene="uid://din50gkoucxpp"
-config/features=PackedStringArray("4.4", "GL Compatibility")
+config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://Assets/icon.svg"
 
 [audio]
@@ -30,6 +30,7 @@ SoftlockFixer="*res://Scripts/tools/globals/softlock_fixer.gd"
 PointNumbers="*res://Scripts/PointNumbers.gd"
 TouchHelper="*res://Scripts/UI/touch_helper.gd"
 TutorialManager="*res://Scripts/TutorialManager.gd"
+PointsManager="*res://Scenes/globals/PointsManager.tscn"
 
 [display]
 

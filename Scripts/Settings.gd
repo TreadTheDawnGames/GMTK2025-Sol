@@ -17,7 +17,7 @@ func _ready() -> void:
 		use_aim_arrow_toggle.button_pressed = GameManager.use_aim_arrow
 
 
-
+#region Customization
 # Called when the color slider value changes
 func _on_color_slider_value_changed(value: float) -> void:
 	# Update GameManager with new hue value
@@ -32,6 +32,8 @@ func update_example_ship_color() -> void:
 	#var ship_color = GameManager.get_ship_color()
 	#example_ship.modulate = ship_color
 	pass
+#endregion
+	
 # Called when Back button is pressed
 func _on_back_button_pressed() -> void:
 	get_tree().paused = false
