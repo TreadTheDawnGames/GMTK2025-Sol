@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://cslq0v6w7x80a"]
+[gd_scene load_steps=24 format=3 uid="uid://cslq0v6w7x80a"]
 
 [ext_resource type="Script" uid="uid://dton838gyavdl" path="res://Scripts/player.gd" id="1_player"]
 [ext_resource type="Texture2D" uid="uid://b3yadhtuplhg2" path="res://Assets/kenney_space-shooter-extension/AAA-ChosenKenneySpace/spaceShips_001.png" id="2_ship_tex"]
@@ -50,6 +50,9 @@ colors = PackedColorArray(0, 1, 1, 1, 1, 1, 1, 1)
 [sub_resource type="AtlasTexture" id="AtlasTexture_megsn"]
 atlas = ExtResource("9_megsn")
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_ksbbd"]
+radius = 60.0
+
 [node name="Player" type="RigidBody2D"]
 collision_layer = 3
 collision_mask = 3
@@ -57,7 +60,10 @@ input_pickable = true
 physics_material_override = SubResource("PhysicsMaterial_52ee3")
 gravity_scale = 0.0
 freeze_mode = 1
+contact_monitor = true
+max_contacts_reported = 1
 script = ExtResource("1_player")
+DEBUG_do_softlock_save = false
 launch_power = 400.0
 max_pull_distance = 300.0
 boost_strength = 1500.0
@@ -202,3 +208,12 @@ texture = SubResource("AtlasTexture_megsn")
 texture_mode = 1
 
 [node name="VisualTrajectoryLine" type="Line2D" parent="."]
+
+[node name="GrindDetector" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GrindDetector"]
+shape = SubResource("CircleShape2D_ksbbd")
+
+[node name="GrindSnapRay" type="RayCast2D" parent="."]

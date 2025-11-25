@@ -32,7 +32,7 @@ theme = ExtResource("1_663bt")
 script = ExtResource("1_31s1k")
 
 [node name="PointsLabel" type="RichTextLabel" parent="."]
-layout_mode = 2
+layout_mode = 0
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 44.0

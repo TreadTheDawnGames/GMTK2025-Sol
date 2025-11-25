@@ -28,6 +28,9 @@ const BOOST_TO_CONTINUE = "You have boosts! Use them to continue."
 
 # This shows a tutorial if it hasn't been shown before.
 func show_tutorial_once(tutorial_id: String, message: String, parent: Node) -> void:
+	if(not is_instance_valid(parent)):
+		return
+		
 	# This checks if tutorials are enabled in the game settings.
 	if not GameManager.get_tutorials_enabled():
 		return
