@@ -69,7 +69,7 @@ gravity_strength = 4800.0
 shape = SubResource("CircleShape2D_ngwap")
 
 [node name="Sprite2D" parent="CollisionShape2D" index="0"]
-scale = Vector2(5.92431, 5.92431)
+scale = Vector2(5.924309, 5.924309)
 
 [node name="Sprite2D2" parent="CollisionShape2D/Sprite2D" index="0"]
 material = SubResource("ShaderMaterial_k6nrp")

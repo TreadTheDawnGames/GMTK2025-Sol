@@ -17,3 +17,4 @@ class_name Sound
 @export var PingLow : AudioStream = preload("res://Assets/Audio/SFX/PingLowSFX2.wav")
 @export var ShipCrash : AudioStream = preload("res://Assets/Audio/SFX/CrashSFX2.wav")
 @export var GetPOints : AudioStream = preload("res://Assets/Audio/SFX/GetPointsSFX2.wav")
+@export var Grind_Temp : AudioStream = preload("uid://dhqavv772eg87")

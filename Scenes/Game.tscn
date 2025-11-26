@@ -1,12 +1,17 @@
-[gd_scene load_steps=9 format=3 uid="uid://c0pbif8cyy7x7"]
+[gd_scene load_steps=14 format=3 uid="uid://c0pbif8cyy7x7"]
 
 [ext_resource type="Script" uid="uid://fh3430ko4xwd" path="res://Scripts/pause_assistant.gd" id="2_fgofq"]
 [ext_resource type="Script" uid="uid://dx7wa3d4fr6xu" path="res://Scripts/star_background.gd" id="3_2irst"]
 [ext_resource type="Material" uid="uid://bxcys6gyngoe6" path="res://Scenes/Effects/StarBackground.tres" id="3_fgofq"]
 [ext_resource type="PackedScene" uid="uid://cslq0v6w7x80a" path="res://Scenes/Player.tscn" id="4_kldst"]
 [ext_resource type="Script" uid="uid://bbqlhhfc46lo3" path="res://Scripts/world_generator.gd" id="6_7lihs"]
+[ext_resource type="PackedScene" uid="uid://d1rrwaam8e5cr" path="res://Scenes/planet_small.tscn" id="7_3so38"]
+[ext_resource type="PackedScene" uid="uid://vuorl2ga7vdk" path="res://Scenes/planet_medium.tscn" id="8_3cx6b"]
 [ext_resource type="PackedScene" uid="uid://p4aoyegbc6gj" path="res://Scenes/UI/GameHUD.tscn" id="8_hud"]
 [ext_resource type="Script" uid="uid://dfjdljl46khuv" path="res://Scripts/GameController.gd" id="9_controller"]
+[ext_resource type="PackedScene" uid="uid://h0vfnklanw5d" path="res://Scenes/planet_large.tscn" id="9_wxwew"]
+[ext_resource type="PackedScene" uid="uid://ci74ofiuydh0w" path="res://Scenes/Planets/grind_girder_long.tscn" id="10_acvyw"]
+[ext_resource type="PackedScene" uid="uid://h8vwtkeivrfw" path="res://Scenes/Planets/grind_girder_planet.tscn" id="11_alh3a"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_2irst"]
 bounce = 0.5
@@ -15,6 +20,7 @@ bounce = 0.5
 script = ExtResource("9_controller")
 num_nebula_clusters = 20
 cluster_radius = 5000.0
+planet_scenes = Array[PackedScene]([ExtResource("7_3so38"), ExtResource("8_3cx6b"), ExtResource("9_wxwew"), ExtResource("10_acvyw"), ExtResource("11_alh3a")])
 num_nebulas = 10
 num_planets = 450
 min_distance_between_planets = 1600.0
@@ -52,6 +58,7 @@ script = ExtResource("3_2irst")
 
 [node name="WorldGenerator" type="Node2D" parent="."]
 script = ExtResource("6_7lihs")
+planet_scenes = Array[PackedScene]([ExtResource("9_wxwew"), ExtResource("8_3cx6b"), ExtResource("7_3so38"), ExtResource("10_acvyw"), ExtResource("11_alh3a")])
 
 [node name="Player" parent="." instance=ExtResource("4_kldst")]
 rotation = -1.5708

@@ -117,13 +117,13 @@ func _generate_level():
 			return null
 
 		var instance = scene.instantiate()
-		var new_radius = instance.get_gravity_radius()
+		var new_radius = instance.get_gravity_radius() if instance is BasePlanet else 200
 		
 		var overlaps = false
 		for existing_body in tracking_array:
 			if not is_instance_valid(existing_body): continue
 			
-			var existing_radius = existing_body.get_gravity_radius()
+			var existing_radius = existing_body.get_gravity_radius() if existing_body is BasePlanet else 200
 			var distance = pos.distance_to(existing_body.global_position)
 			
 			var required_buffer = min_distance_between_planets
@@ -138,6 +138,7 @@ func _generate_level():
 		
 		if not overlaps:
 			instance.global_position = pos
+			instance.rotation = randf_range(-180, 180)
 			generated_planets_node.add_child(instance)
 			tracking_array.append(instance)
 			return instance

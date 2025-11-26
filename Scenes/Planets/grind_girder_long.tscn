@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://ci74ofiuydh0w"]
+
+[ext_resource type="PackedScene" uid="uid://ds3ylnh5spqn1" path="res://Scenes/Planets/grind_girder.tscn" id="1_ujqmn"]
+[ext_resource type="Texture2D" uid="uid://druarxrb3dvkn" path="res://Assets/Non-kenney/SkidGirder-Ugly.png" id="2_rj3yf"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_iv75y"]
+size = Vector2(7941, 202)
+
+[node name="GrindGirder_Long" instance=ExtResource("1_ujqmn")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." index="0"]
+position = Vector2(3613.5, -91)
+shape = SubResource("RectangleShape2D_iv75y")
+
+[node name="Sprite2D" type="Sprite2D" parent="." index="1"]
+position = Vector2(3613.5, -90.99997)
+scale = Vector2(124.07814, 3.1562495)
+texture = ExtResource("2_rj3yf")

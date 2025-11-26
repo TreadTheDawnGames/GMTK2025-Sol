@@ -5,6 +5,7 @@ class_name Player
 @onready var point_numbers_spawnpoint: Marker2D = $PointNumbersOrigin
 @onready var grind_detector: Area2D = $GrindDetector
 @onready var grind_snap_ray: RayCast2D = $GrindSnapRay
+@onready var grind_audio: AudioStreamPlayer2D = $GrindAudio
 
 #region Ship Stats
 # This tracks the maximum number of skips the player can have.
@@ -49,6 +50,8 @@ enum State {
 # The particles
 @onready var _LaunchParticles: ParticleEffect = $LaunchParticles
 @onready var _BoostParticles: ParticleEffect = $BoostParticles
+@onready var grind_particles: CPUParticles2D = $GrindParticles
+
 # The sprite
 @onready var Sprite: Sprite2D = $Sprite2D
 # The Camera
@@ -196,8 +199,8 @@ func _physics_process(_delta: float) -> void:
 	
 	if is_inside_tree():
 		# Moves the player and checks for collisions.
-		var collision : KinematicCollision2D = move_and_collide(linear_velocity.normalized(), true)
-		_handle_collision(collision)
+		#var collision : KinematicCollision2D = 
+		_handle_collision(move_and_collide(linear_velocity.normalized(), true))
 			
 			
 	_handle_launched_state()
@@ -437,7 +440,9 @@ func apply_boost() -> void:
 	var boost_direction = Vector2.RIGHT.rotated(rotation)
 
 	if(grinding):
+		grinding = null
 		linear_velocity = linear_velocity.project(boost_direction.normalized())
+		#linear_velocity = linear_velocity*boost_direction
 	# Applies an instant force (impulse) in the forward direction.
 	apply_central_impulse(boost_direction * boost_strength)
 	# Consumes the boost so it cannot be used again.
@@ -463,7 +468,8 @@ func Reset():
 	Sprite.frame_coords.y = 0
 	#get ready to launch
 	current_state = State.READY_TO_AIM
-	hud.mobile_controls.set_ready_to_launch(true)
+	if(is_instance_valid(hud)):
+		hud.mobile_controls.set_ready_to_launch(true)
 	
 	#reset orbit amount
 	accumulated_orbit_angle = 0.0
@@ -508,6 +514,11 @@ func _handle_launch_canceled():
 		update_aim_line()
 		pass
 func _handle_debug_input():
+	
+	var debug_movement : Vector2 = Vector2(Input.get_axis("DEBUG-LEFT", "DEBUG-RIGHT"), Input.get_axis("DEBUG-UP", "DEBUG-DOWN"))
+	if(debug_movement.length()>0):
+		linear_velocity = debug_movement * 5000
+	
 	if Input.is_action_just_pressed("DEBUG-RESET_LAUNCH"):
 		current_state = State.READY_TO_AIM
 		grinding = null
@@ -612,24 +623,49 @@ func update_aim_line() -> void:
 #endregion
 
 #region Collision (Planets/Asteroids)
-func _handle_collision(collision):
+func _handle_collision(collision : KinematicCollision2D):
+	#print(grinding)
+	
 	if(not grind_detector.has_overlapping_bodies() && grinding):
 		print("not grinding")
 		grinding = null
 	elif grinding:
-		rotation = grind_rotation
 		
-		if(get_contact_count() == 0):
-		
+		grind_snap_ray.force_raycast_update()
+		#Claude
+		if grind_snap_ray.is_colliding():
+			# Get collision point and normal
+			var hit_point : Vector2 = grind_snap_ray.get_collision_point()
+			var normal : Vector2 = grind_snap_ray.get_collision_normal()
 			
-		
-			global_position += direction_to_grinder
-			pass
+			rotation = normal.angle() + grind_rotation
+			
+			grind_snap_ray.rotation = (-normal).angle() - rotation
+			
+				
+			if(linear_velocity.length() <= 50):
+				grind_particles.emitting = false
+				grind_audio.stop()				
+			else:
+				grind_particles.global_position = hit_point
+				grind_particles.rotation = (normal).angle() - rotation
+				grind_audio.global_position = hit_point
+				grind_audio.pitch_scale = remap(linear_velocity.length(), 0, 5000, 0.1, 1.5)
+				
+			global_position = hit_point + normal * 41
+			
+			if global_position.distance_to(grind_entry_point) > 750:
+				grind_entry_point = global_position
+				PointsManager.add_points(1)
+			
+			# Slide velocity along surface
+			linear_velocity = linear_velocity.slide(normal)
 		
 		
 		print("grinding")
 		#print("grinding")
 	
+
 	if(collision):
 		var collider = collision.get_collider()
 		# Checks if the collided object's owner is a planet.
@@ -646,6 +682,46 @@ func _handle_collision(collision):
 			_handle_colliding_with_grind_girder(collision)
 	
 	
+var grinding : GrindGirder = null :
+	set(value):
+		if value == null:
+			grind_particles.emitting = false
+			if(grind_audio.stream == Sounds.Grind_Temp):
+				grind_audio.stop()
+		grinding = value
+var grind_rotation : float = 0
+var direction_to_grinder : Vector2
+var grind_entry_point : Vector2
+
+func _handle_colliding_with_grind_girder(collision : KinematicCollision2D):
+
+	
+	if(grinding):
+		return
+	BoostCount += 1
+	print("Collision: ", collision)
+	grinding = collision.get_collider()
+	angular_velocity = 0
+	direction_to_grinder = collision.get_normal().normalized()
+	
+	rotation = linear_velocity.bounce(collision.get_normal()).angle()
+	
+	grind_rotation = rotation - direction_to_grinder.angle()
+	
+	grind_snap_ray.look_at(collision.get_position())
+	
+	grind_entry_point =  collision.get_position()
+	
+	grind_particles.emitting = true
+	
+	grind_audio.stream = Sounds.Grind_Temp
+	grind_audio.play()
+	
+	audioHandler.PlaySoundAtGlobalPosition(Sounds.ShipCollide, global_position,true)
+	
+	linear_velocity = linear_velocity.slide(collision.get_normal())
+	
+	PointsManager.add_points(1)
 
 ## Handles collision with a home planet (shop).
 func _handle_landing_on_shop():
@@ -664,6 +740,7 @@ func _handle_landing_on_shop():
 
 ## Logic for colliding with a regular planet.
 func _handle_landing_on_planet(collider):
+	
 	if(current_skips_available > 0) and collider.owner is not Asteroid:
 		print("Skip")	
 		current_skips_available -= 1
@@ -687,24 +764,7 @@ func _handle_landing_on_planet(collider):
 		
 		land()
 
-var grinding : GrindGirder = null
-var grind_rotation : float = 0
-var direction_to_grinder : Vector2
 
-func _handle_colliding_with_grind_girder(_girder):
-
-	
-	if(grinding):
-		return
-	var collision = _girder as KinematicCollision2D
-	grinding = collision.get_collider()
-	
-	angular_velocity = 0
-	direction_to_grinder = -collision.get_normal().normalized()
-	grind_snap_ray.rotation = direction_to_grinder.angle()
-	grind_rotation = linear_velocity.bounce(collision.get_normal()).angle()
-	linear_velocity = linear_velocity.slide(collision.get_normal())
-	pass
 
 func _handle_colliding_with_asteroid():
 	audioHandler.PlaySoundAtGlobalPosition(Sounds.ShipCollide, global_position)
