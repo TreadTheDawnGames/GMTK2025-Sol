@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b3yadhtuplhg2"
-path="res://.godot/imported/spaceShips_001.png-092c831cc586f9afdb0f0cffe0f3d896.ctex"
+uid="uid://druarxrb3dvkn"
+path="res://.godot/imported/SkidGirder-Ugly.png-e90527c1dca8c5749c495ee082fe9de2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/kenney_space-shooter-extension/AAA-ChosenKenneySpace/spaceShips_001.png"
-dest_files=["res://.godot/imported/spaceShips_001.png-092c831cc586f9afdb0f0cffe0f3d896.ctex"]
+source_file="res://Assets/Non-kenney/SkidGirder-Ugly.png"
+dest_files=["res://.godot/imported/SkidGirder-Ugly.png-e90527c1dca8c5749c495ee082fe9de2.ctex"]
 
 [params]
 

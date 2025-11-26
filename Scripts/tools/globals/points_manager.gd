@@ -29,20 +29,20 @@ func calculate_final_score() -> void:
 		
 
 func add_points(_points : int):
-	PointNumbers.display_number(points, spawnpoint.global_position, 1)
 	points += _points
+	PointNumbers.display_number(_points, spawnpoint.global_position, 0)
 
 func mult_points(_points : int):
-	PointNumbers.display_number(points, spawnpoint.global_position, 1)
 	points *= _points
+	PointNumbers.display_number(_points, spawnpoint.global_position, 0)
 
 func add_mult(_mult : int):
-	PointNumbers.display_number(mult, spawnpoint.global_position, 1)
 	mult += _mult
+	PointNumbers.display_number(_mult, spawnpoint.global_position, 1)
 
 func multiply_mult(_mult : int):
-	PointNumbers.display_number(mult, spawnpoint.global_position, 1)
 	mult *= _mult
+	PointNumbers.display_number(_mult, spawnpoint.global_position, 1)
 
 func reset():
 	points = 0

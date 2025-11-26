@@ -6,11 +6,16 @@ class_name PlanetGenerator
 # --- Procedural Generation Settings ---
 @export_category("Level Generation")
 # The scenes for planets that can be randomly spawned.
-@export var planet_scenes: Array[PackedScene] = [
-	preload("res://Scenes/planet_small.tscn"),
-	preload("res://Scenes/planet_medium.tscn"),
-	preload("res://Scenes/planet_large.tscn")
-]
+@export var planet_scenes: Array[PackedScene]
+ #= [
+	#preload("res://Scenes/planet_small.tscn"),
+	#preload("res://Scenes/planet_medium.tscn"),
+	#preload("res://Scenes/planet_large.tscn"),
+	#preload("uid://ci74ofiuydh0w"),
+	#preload("uid://h8vwtkeivrfw"),
+	#
+	#
+#]
 # The scene for the nebula visual effect.
 @export var nebula_scene: PackedScene = preload("res://Scenes/Planets/Nebula.tscn")
 # The maximum radius from the center (0,0) where planets can spawn.
@@ -150,6 +155,7 @@ func _generate_level(player : Player):
 		for i in range(planets_to_spawn):
 			for attempt in range(20):
 				var planet_scene = planet_scenes.pick_random()
+				print("Planet scene: ", planet_scene.resource_name)
 				var spawn_center = Vector2.ZERO
 				if i < planets_in_nebulas and not spawned_nebulas.is_empty():
 					spawn_center = spawned_nebulas.pick_random().global_position

@@ -3,6 +3,9 @@ class_name Player
 @onready var audioHandler: PlayerAudioHandler = $AudioHandler
 # The trail effects
 @onready var point_numbers_spawnpoint: Marker2D = $PointNumbersOrigin
+@onready var grind_detector: Area2D = $GrindDetector
+@onready var grind_snap_ray: RayCast2D = $GrindSnapRay
+@onready var grind_audio: AudioStreamPlayer2D = $GrindAudio
 
 #region Ship Stats
 # This tracks the maximum number of skips the player can have.
@@ -36,8 +39,8 @@ enum State {
 @onready var aim_manager: VisTrajectoryManager = $AimManager
 
 @onready var Shape: CollisionShape2D = $CollisionShape2D
+@export var DEBUG_do_softlock_save : bool = true
 @export var softlock_sensitivity = 50
-
 
 @export_category("Orbit Settings")
 @export_range(0.0, 1.0) var orbit_completion_percentage: float = 0.95 # 95%
@@ -47,6 +50,8 @@ enum State {
 # The particles
 @onready var _LaunchParticles: ParticleEffect = $LaunchParticles
 @onready var _BoostParticles: ParticleEffect = $BoostParticles
+@onready var grind_particles: CPUParticles2D = $GrindParticles
+
 # The sprite
 @onready var Sprite: Sprite2D = $Sprite2D
 # The Camera
@@ -119,16 +124,6 @@ var accumulated_orbit_angle: float = 0.0
 var orbit_start_angle: float = 0.0  # Angle where orbit started
 
 var mobilePosition : Vector2
-# This function is called by Godot when an input event occurs on this object.
-#func _input(ev: InputEvent) -> void:
-	#if ev is InputEventMouseButton:
-		#var event = ev as InputEventMouseButton
-		#if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			#clickTimer = get_tree().create_timer(CLICK_TIME)
-			#get_viewport().set_input_as_handled()
-
-# A timer to check if the mouse button was down/up quick
-#var clickTimer : SceneTreeTimer
 
 var singleTouchProcessed : bool = false
 var mouseReleased = true
@@ -149,13 +144,14 @@ func _ready() -> void:
 	hud = get_tree().root.get_node("Game/HUDLayer/GameHUD")
 	#TutorialManager.show_how_to_play(hud)
 	
-	#setup mobile boost/brake buttons
-	hud.mobile_controls.primary.pressed.connect(func(): 
-		if(current_state == State.LAUNCHED):
-			mobileBoost = true)
-	hud.mobile_controls.secondary.pressed.connect(func(): 
-		if(current_state == State.LAUNCHED):
-			mobileBrake = true)
+	if(hud):
+		#setup mobile boost/brake buttons
+		hud.mobile_controls.primary.pressed.connect(func(): 
+			if(current_state == State.LAUNCHED):
+				mobileBoost = true)
+		hud.mobile_controls.secondary.pressed.connect(func(): 
+			if(current_state == State.LAUNCHED):
+				mobileBrake = true)
 	
 	# setup damp mode
 	linear_damp_mode = RigidBody2D.DAMP_MODE_COMBINE
@@ -170,6 +166,9 @@ func _ready() -> void:
 
 # This function is called every frame.
 func _process(_delta: float) -> void:
+	
+	_handle_debug_input()
+
 	_handle_mobile_input()
 
 	# Does not process input if game is paused (e.g., shop is open).
@@ -192,15 +191,17 @@ func _physics_process(_delta: float) -> void:
 	_notify_strongest_planet_that_we_are_now_orbiting_it(_determine_strongest_planet_pull(max_force))
 
 	# This logic detects if the player is stuck at a very low velocity and summons a "saving" asteroid.
-	_handle_softlock()
+	if(DEBUG_do_softlock_save):
+		_handle_softlock()
 		
 	# Checks if the player has drifted too far from the starting origin.
 	_check_lose_condition()
 	
 	if is_inside_tree():
 		# Moves the player and checks for collisions.
-		var collision : KinematicCollision2D = move_and_collide(linear_velocity.normalized(), true)
-		_handle_collision(collision)
+		#var collision : KinematicCollision2D = 
+		_handle_collision(move_and_collide(linear_velocity.normalized(), true))
+			
 			
 	_handle_launched_state()
 #endregion
@@ -238,7 +239,8 @@ func _handle_launched_state():
 	if current_state == State.LAUNCHED:
 		# Makes the rocket point in the direction it's moving.
 		if linear_velocity.length() > 0.01:
-			rotation = linear_velocity.angle()
+			if(not grinding):
+				rotation = linear_velocity.angle()
 		# Checks if the boost is available and the user pressed the boost action (for keyboard).
 		if BoostCount > 0 and Input.is_action_just_pressed("boost"):
 			apply_boost()
@@ -436,6 +438,11 @@ func apply_boost() -> void:
 		return
 	# Gets the forward direction of the rocket.
 	var boost_direction = Vector2.RIGHT.rotated(rotation)
+
+	if(grinding):
+		grinding = null
+		linear_velocity = linear_velocity.project(boost_direction.normalized())
+		#linear_velocity = linear_velocity*boost_direction
 	# Applies an instant force (impulse) in the forward direction.
 	apply_central_impulse(boost_direction * boost_strength)
 	# Consumes the boost so it cannot be used again.
@@ -461,7 +468,8 @@ func Reset():
 	Sprite.frame_coords.y = 0
 	#get ready to launch
 	current_state = State.READY_TO_AIM
-	hud.mobile_controls.set_ready_to_launch(true)
+	if(is_instance_valid(hud)):
+		hud.mobile_controls.set_ready_to_launch(true)
 	
 	#reset orbit amount
 	accumulated_orbit_angle = 0.0
@@ -505,13 +513,26 @@ func _handle_launch_canceled():
 		hud.mobile_controls.set_ready_to_launch(false)
 		update_aim_line()
 		pass
-
+func _handle_debug_input():
+	
+	var debug_movement : Vector2 = Vector2(Input.get_axis("DEBUG-LEFT", "DEBUG-RIGHT"), Input.get_axis("DEBUG-UP", "DEBUG-DOWN"))
+	if(debug_movement.length()>0):
+		linear_velocity = debug_movement * 5000
+	
+	if Input.is_action_just_pressed("DEBUG-RESET_LAUNCH"):
+		current_state = State.READY_TO_AIM
+		grinding = null
+		BoostCount = 4
+	
+	pass
 func _handle_launching():
 	# Launches on mouse release while AIMING.
 	if current_state == State.AIMING and not ((Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or any_fingies_down)):
 		# Calls the function to launch the player using the stored aim vector.
 		launch()
-		hud.mobile_controls.set_ready_to_launch(false)
+		#check because mobile controls don't exist in the testing scene
+		if(is_instance_valid(hud)):
+			hud.mobile_controls.set_ready_to_launch(false)
 
 func _handle_mobile_input():
 	if(GameManager.IsMobile):
@@ -602,7 +623,49 @@ func update_aim_line() -> void:
 #endregion
 
 #region Collision (Planets/Asteroids)
-func _handle_collision(collision):
+func _handle_collision(collision : KinematicCollision2D):
+	#print(grinding)
+	
+	if(not grind_detector.has_overlapping_bodies() && grinding):
+		print("not grinding")
+		grinding = null
+	elif grinding:
+		
+		grind_snap_ray.force_raycast_update()
+		#Claude
+		if grind_snap_ray.is_colliding():
+			# Get collision point and normal
+			var hit_point : Vector2 = grind_snap_ray.get_collision_point()
+			var normal : Vector2 = grind_snap_ray.get_collision_normal()
+			
+			rotation = normal.angle() + grind_rotation
+			
+			grind_snap_ray.rotation = (-normal).angle() - rotation
+			
+				
+			if(linear_velocity.length() <= 50):
+				grind_particles.emitting = false
+				grind_audio.stop()				
+			else:
+				grind_particles.global_position = hit_point
+				grind_particles.rotation = (normal).angle() - rotation
+				grind_audio.global_position = hit_point
+				grind_audio.pitch_scale = remap(linear_velocity.length(), 0, 5000, 0.1, 1.5)
+				
+			global_position = hit_point + normal * 41
+			
+			if global_position.distance_to(grind_entry_point) > 750:
+				grind_entry_point = global_position
+				PointsManager.add_points(1)
+			
+			# Slide velocity along surface
+			linear_velocity = linear_velocity.slide(normal)
+		
+		
+		print("grinding")
+		#print("grinding")
+	
+
 	if(collision):
 		var collider = collision.get_collider()
 		# Checks if the collided object's owner is a planet.
@@ -615,6 +678,50 @@ func _handle_collision(collision):
 		# Checks if the collided object is an asteroid.
 		elif collider is Asteroid:
 			_handle_colliding_with_asteroid()
+		elif collider is GrindGirder:
+			_handle_colliding_with_grind_girder(collision)
+	
+	
+var grinding : GrindGirder = null :
+	set(value):
+		if value == null:
+			grind_particles.emitting = false
+			if(grind_audio.stream == Sounds.Grind_Temp):
+				grind_audio.stop()
+		grinding = value
+var grind_rotation : float = 0
+var direction_to_grinder : Vector2
+var grind_entry_point : Vector2
+
+func _handle_colliding_with_grind_girder(collision : KinematicCollision2D):
+
+	
+	if(grinding):
+		return
+	BoostCount += 1
+	print("Collision: ", collision)
+	grinding = collision.get_collider()
+	angular_velocity = 0
+	direction_to_grinder = collision.get_normal().normalized()
+	
+	rotation = linear_velocity.bounce(collision.get_normal()).angle()
+	
+	grind_rotation = rotation - direction_to_grinder.angle()
+	
+	grind_snap_ray.look_at(collision.get_position())
+	
+	grind_entry_point =  collision.get_position()
+	
+	grind_particles.emitting = true
+	
+	grind_audio.stream = Sounds.Grind_Temp
+	grind_audio.play()
+	
+	audioHandler.PlaySoundAtGlobalPosition(Sounds.ShipCollide, global_position,true)
+	
+	linear_velocity = linear_velocity.slide(collision.get_normal())
+	
+	PointsManager.add_points(1)
 
 ## Handles collision with a home planet (shop).
 func _handle_landing_on_shop():
@@ -633,6 +740,7 @@ func _handle_landing_on_shop():
 
 ## Logic for colliding with a regular planet.
 func _handle_landing_on_planet(collider):
+	
 	if(current_skips_available > 0) and collider.owner is not Asteroid:
 		print("Skip")	
 		current_skips_available -= 1
@@ -655,6 +763,8 @@ func _handle_landing_on_planet(collider):
 		PointsManager.calculate_final_score()
 		
 		land()
+
+
 
 func _handle_colliding_with_asteroid():
 	audioHandler.PlaySoundAtGlobalPosition(Sounds.ShipCollide, global_position)
