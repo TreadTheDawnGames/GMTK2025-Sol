@@ -1,51 +1,19 @@
-[gd_scene load_steps=11 format=3 uid="uid://dpgyyv3r18v5n"]
+[gd_scene load_steps=7 format=3 uid="uid://dpgyyv3r18v5n"]
 
 [ext_resource type="PackedScene" uid="uid://cslq0v6w7x80a" path="res://Scenes/Player.tscn" id="1_sx6hp"]
+[ext_resource type="Script" uid="uid://ynj6na2twwin" path="res://Scripts/tools/deletables/testing.gd" id="1_vdlfs"]
 [ext_resource type="Material" uid="uid://bxcys6gyngoe6" path="res://Scenes/Effects/StarBackground.tres" id="2_4ppfb"]
 [ext_resource type="Script" uid="uid://dx7wa3d4fr6xu" path="res://Scripts/star_background.gd" id="3_8si1v"]
-[ext_resource type="PackedScene" uid="uid://ds3ylnh5spqn1" path="res://Scenes/Planets/grind_girder.tscn" id="4_4ppfb"]
-[ext_resource type="Texture2D" uid="uid://druarxrb3dvkn" path="res://Assets/Non-kenney/SkidGirder-Ugly.png" id="5_8si1v"]
+[ext_resource type="PackedScene" uid="uid://bboxrx01e6vus" path="res://Scenes/ScoringObjects/ram_vines.tscn" id="5_8si1v"]
 [ext_resource type="PackedScene" uid="uid://p4aoyegbc6gj" path="res://Scenes/UI/GameHUD.tscn" id="5_a06pk"]
-[ext_resource type="Texture2D" uid="uid://b3dfuop6n5fr2" path="res://Assets/kenney_planets/Planets/planet03.png" id="5_vdlfs"]
-[ext_resource type="PackedScene" uid="uid://h0vfnklanw5d" path="res://Scenes/planet_large.tscn" id="8_a06pk"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_8si1v"]
-size = Vector2(541.3522, 20)
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_4ppfb"]
-radius = 75.866356
 
 [node name="Game" type="Node2D"]
-
-[node name="GrindGirder2" parent="." instance=ExtResource("4_4ppfb")]
-position = Vector2(1177.075, -80)
-rotation = -0.648569
-scale = Vector2(8, 8)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="GrindGirder2"]
-position = Vector2(-45.72148, -16.783913)
-shape = SubResource("RectangleShape2D_8si1v")
-
-[node name="SkidGirderUgly" type="Sprite2D" parent="GrindGirder2"]
-position = Vector2(-45.71553, -16.791584)
-scale = Vector2(8.457851, 0.31244063)
-texture = ExtResource("5_8si1v")
-
-[node name="GrindGirder" parent="." instance=ExtResource("4_4ppfb")]
-position = Vector2(1177.075, -80)
-rotation = -0.648569
-scale = Vector2(8, 8)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="GrindGirder"]
-position = Vector2(4.851158, 175.89622)
-shape = SubResource("CircleShape2D_4ppfb")
-
-[node name="Planet03" type="Sprite2D" parent="GrindGirder/CollisionShape2D"]
-rotation = 0.648569
-scale = Vector2(0.15, 0.15)
-texture = ExtResource("5_vdlfs")
+script = ExtResource("1_vdlfs")
 
 [node name="Player" parent="." instance=ExtResource("1_sx6hp")]
+position = Vector2(-399, -241)
+debug_speed = 250.0
+DEBUG_do_softlock_save = false
 launch_power = 5.0
 
 [node name="HudLayer" type="CanvasLayer" parent="."]
@@ -64,5 +32,6 @@ script = ExtResource("3_8si1v")
 
 [node name="GameHUD" parent="HudLayer" instance=ExtResource("5_a06pk")]
 
-[node name="Planet4" parent="." instance=ExtResource("8_a06pk")]
-position = Vector2(-1461, -1841)
+[node name="Destroy_Vines" parent="." instance=ExtResource("5_8si1v")]
+position = Vector2(-358, -2150)
+endpoint = Vector2(6806, -6183)

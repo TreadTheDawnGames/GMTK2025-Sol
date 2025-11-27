@@ -74,7 +74,7 @@ func on_bounce(player: Player) -> void:
 	#player.mult *= 2
 
 # This function handles the logic for when the satellite is destroyed.
-func on_hit(player : Player) -> void:
+func on_hit(_player : Player) -> void:
 	# This adds 3 points to the player's score
 	PointsManager.add_points(3)
 	

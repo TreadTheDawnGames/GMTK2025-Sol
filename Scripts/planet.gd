@@ -3,7 +3,7 @@ extends Area2D
 class_name BasePlanet
 
 # This preloads the satellite scene so it can be spawned from code.
-const SATELLITE_SCENE = preload("res://Scenes/Planets/Satellite.tscn")
+const SATELLITE_SCENE = preload("res://Scenes/ScoringObjects/Satellite.tscn")
 
 # This exports a variable to the Godot editor, allowing to change it without code.
 @export var gravity_strength: float = 4000.0
@@ -142,6 +142,16 @@ func _physics_process(_delta: float) -> void:
 	for body in bodies_in_gravity_field:
 		# This calculates the direction from the body towards this planet.
 		if(body is Player and not body.onPlanet):
+			var direction_to_planet = (global_position - body.global_position).normalized()
+			var distance = global_position.distance_to(body.global_position)
+			var gravity_falloff = collision_shape_2d.shape.radius / distance
+			
+			# This calculates the force vector by combining direction and strength.
+			var gravity_force = direction_to_planet * gravity_strength * gravity_falloff
+
+			# This applies the calculated force to the center of the body.
+			body.apply_central_force(gravity_force)
+		elif(body is PhysicsBody2D):
 			var direction_to_planet = (global_position - body.global_position).normalized()
 			var distance = global_position.distance_to(body.global_position)
 			var gravity_falloff = collision_shape_2d.shape.radius / distance
