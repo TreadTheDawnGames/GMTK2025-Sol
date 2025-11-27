@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=3 uid="uid://bboxrx01e6vus"]
+
+[ext_resource type="Script" uid="uid://bduti2use3hpd" path="res://Scenes/ScoringObjects/ram_vines.gd" id="1_h5edo"]
+[ext_resource type="PackedScene" uid="uid://drmayofxbyw6k" path="res://Scenes/ScoringObjects/vine_segment.tscn" id="2_h5edo"]
+[ext_resource type="Texture2D" uid="uid://druarxrb3dvkn" path="res://Assets/Non-kenney/SkidGirder-Ugly.png" id="3_02kjw"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8esyn"]
+radius = 3.1622777
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_wrrew"]
+radius = 3.1622777
+
+[node name="Destroy_Vines" type="StaticBody2D"]
+collision_layer = 2
+collision_mask = 2
+script = ExtResource("1_h5edo")
+chain_object = ExtResource("2_h5edo")
+
+[node name="SkidGirderUgly" type="Sprite2D" parent="."]
+texture = ExtResource("3_02kjw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_8esyn")
+
+[node name="PinJoint2D" type="PinJoint2D" parent="."]
+node_a = NodePath("..")
+
+[node name="Endpoint" type="StaticBody2D" parent="."]
+top_level = true
+collision_layer = 2
+collision_mask = 2
+
+[node name="SkidGirderUgly" type="Sprite2D" parent="Endpoint"]
+texture = ExtResource("3_02kjw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Endpoint"]
+shape = SubResource("CircleShape2D_wrrew")

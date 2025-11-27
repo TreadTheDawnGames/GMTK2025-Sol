@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://ci74ofiuydh0w"]
 
-[ext_resource type="PackedScene" uid="uid://ds3ylnh5spqn1" path="res://Scenes/Planets/grind_girder.tscn" id="1_ujqmn"]
+[ext_resource type="PackedScene" uid="uid://ds3ylnh5spqn1" path="res://Scenes/ScoringObjects/grind_girder.tscn" id="1_ujqmn"]
 [ext_resource type="Texture2D" uid="uid://druarxrb3dvkn" path="res://Assets/Non-kenney/SkidGirder-Ugly.png" id="2_rj3yf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_iv75y"]

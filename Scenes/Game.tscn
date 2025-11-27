@@ -10,8 +10,8 @@
 [ext_resource type="PackedScene" uid="uid://p4aoyegbc6gj" path="res://Scenes/UI/GameHUD.tscn" id="8_hud"]
 [ext_resource type="Script" uid="uid://dfjdljl46khuv" path="res://Scripts/GameController.gd" id="9_controller"]
 [ext_resource type="PackedScene" uid="uid://h0vfnklanw5d" path="res://Scenes/planet_large.tscn" id="9_wxwew"]
-[ext_resource type="PackedScene" uid="uid://ci74ofiuydh0w" path="res://Scenes/Planets/grind_girder_long.tscn" id="10_acvyw"]
-[ext_resource type="PackedScene" uid="uid://h8vwtkeivrfw" path="res://Scenes/Planets/grind_girder_planet.tscn" id="11_alh3a"]
+[ext_resource type="PackedScene" uid="uid://ci74ofiuydh0w" path="res://Scenes/ScoringObjects/grind_girder_long.tscn" id="10_acvyw"]
+[ext_resource type="PackedScene" uid="uid://h8vwtkeivrfw" path="res://Scenes/ScoringObjects/grind_girder_planet.tscn" id="11_alh3a"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_2irst"]
 bounce = 0.5

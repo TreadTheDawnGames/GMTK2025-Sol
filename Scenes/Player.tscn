@@ -65,6 +65,7 @@ input_pickable = true
 physics_material_override = SubResource("PhysicsMaterial_52ee3")
 gravity_scale = 0.0
 freeze_mode = 1
+continuous_cd = 2
 contact_monitor = true
 max_contacts_reported = 1
 script = ExtResource("1_player")

@@ -8,6 +8,8 @@ class_name Player
 @onready var grind_audio: AudioStreamPlayer2D = $GrindAudio
 
 #region Ship Stats
+@export var debug_speed : float = 5000
+
 # This tracks the maximum number of skips the player can have.
 var max_skips_per_orbit: int = 1
 # This tracks the current number of available skips.
@@ -517,7 +519,7 @@ func _handle_debug_input():
 	
 	var debug_movement : Vector2 = Vector2(Input.get_axis("DEBUG-LEFT", "DEBUG-RIGHT"), Input.get_axis("DEBUG-UP", "DEBUG-DOWN"))
 	if(debug_movement.length()>0):
-		linear_velocity = debug_movement * 5000
+		linear_velocity = debug_movement * debug_speed
 	
 	if Input.is_action_just_pressed("DEBUG-RESET_LAUNCH"):
 		current_state = State.READY_TO_AIM

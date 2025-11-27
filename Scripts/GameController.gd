@@ -48,7 +48,7 @@ var victory_sequence_active: bool = false
 	preload("res://Scenes/planet_large.tscn")
 ]
 # The scene for the nebula visual effect.
-@export var nebula_scene: PackedScene = preload("res://Scenes/Planets/Nebula.tscn")
+@export var nebula_scene: PackedScene = preload("res://Scenes/ScoringObjects/Nebula.tscn")
 # The maximum radius from the center (0,0) where planets can spawn.
 @export var spawn_radius: float = 30000.0
 # The number of nebulas to spawn.
