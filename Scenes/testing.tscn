@@ -2,36 +2,31 @@
 
 [ext_resource type="PackedScene" uid="uid://cslq0v6w7x80a" path="res://Scenes/Player.tscn" id="1_sx6hp"]
 [ext_resource type="Script" uid="uid://ynj6na2twwin" path="res://Scripts/tools/deletables/testing.gd" id="1_vdlfs"]
-[ext_resource type="Material" uid="uid://bxcys6gyngoe6" path="res://Scenes/Effects/StarBackground.tres" id="2_4ppfb"]
-[ext_resource type="Script" uid="uid://dx7wa3d4fr6xu" path="res://Scripts/star_background.gd" id="3_8si1v"]
-[ext_resource type="PackedScene" uid="uid://bboxrx01e6vus" path="res://Scenes/ScoringObjects/ram_vines.tscn" id="5_8si1v"]
-[ext_resource type="PackedScene" uid="uid://p4aoyegbc6gj" path="res://Scenes/UI/GameHUD.tscn" id="5_a06pk"]
+[ext_resource type="Material" uid="uid://bxcys6gyngoe6" path="res://Scenes/Effects/StarBackground.tres" id="2_a06pk"]
+[ext_resource type="PackedScene" uid="uid://co04cd6y6covq" path="res://Scenes/WorldGen/biome.tscn" id="2_vdlfs"]
+[ext_resource type="Script" uid="uid://dx7wa3d4fr6xu" path="res://Scripts/star_background.gd" id="3_x6ncj"]
+[ext_resource type="PackedScene" uid="uid://d1rrwaam8e5cr" path="res://Scenes/WorldGen/WorldObjects/planet_small.tscn" id="5_383b8"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_vdlfs")
 
-[node name="Player" parent="." instance=ExtResource("1_sx6hp")]
-position = Vector2(-399, -241)
-debug_speed = 250.0
-DEBUG_do_softlock_save = false
-launch_power = 5.0
-
-[node name="HudLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
 layer = -1
 
-[node name="ColorRect" type="ColorRect" parent="HudLayer"]
-z_index = -1
-z_as_relative = false
-material = ExtResource("2_4ppfb")
+[node name="SpaceBackground" type="ColorRect" parent="CanvasLayer"]
+material = ExtResource("2_a06pk")
 offset_left = -619.0
 offset_top = -324.0
 offset_right = 2811.0
 offset_bottom = 1626.0
 color = Color(0, 0, 0, 1)
-script = ExtResource("3_8si1v")
+script = ExtResource("3_x6ncj")
 
-[node name="GameHUD" parent="HudLayer" instance=ExtResource("5_a06pk")]
+[node name="Biome" parent="." instance=ExtResource("2_vdlfs")]
+planet_scenes = Array[PackedScene]([ExtResource("5_383b8")])
+num_planets = 150
 
-[node name="Destroy_Vines" parent="." instance=ExtResource("5_8si1v")]
-position = Vector2(-358, -2150)
-endpoint = Vector2(6806, -6183)
+[node name="Player" parent="." instance=ExtResource("1_sx6hp")]
+position = Vector2(23589, 19506)
+DEBUG_do_softlock_save = false
+DEBUG_DoLoseCondition = false

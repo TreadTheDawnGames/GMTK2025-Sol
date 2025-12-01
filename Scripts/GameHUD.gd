@@ -8,7 +8,7 @@ const FloatingNumber = preload("res://Scenes/UI/FloatingNumber.tscn")
 @onready var high_score_label: Label = $VBoxContainer/HighScoreLabel
 @onready var level_goal_label: Label = $VBoxContainer/LevelGoalLabel
 @onready var boost_power_label: Label = $VBoxContainer/BoostPowerLabel
-@onready var compass = %Compass
+@onready var compass : Compass = %Compass
 @onready var objectives_panel: ObjectivesPanel = $ObjectivesPanel
 @onready var notification_container: Control = $NotificationContainer
 @onready var points_label: RichTextLabel = $PointsLabel
@@ -19,7 +19,7 @@ const FloatingNumber = preload("res://Scenes/UI/FloatingNumber.tscn")
 
 # This stores references to game objects.
 var player: Player
-var game_controller
+var game_controller : GameController
 
 # This stores the tween for the score flash effect.
 var score_flash_tween: Tween
@@ -39,7 +39,7 @@ func _ready() -> void:
 	update_score_display()
 	update_high_score_display()
 	update_level_goal_display()
-	update_boosts_display()
+	update_points_display(PointsManager.points, PointsManager.mult)
 	boost_power_label.visible = false
 
 	# This sets up the notification container position.
@@ -51,17 +51,18 @@ func setup_references(player_ref: RigidBody2D, home_ref: Area2D, planets_ref: Ar
 	player = player_ref
 	game_controller = get_node("../../") as GameController
 
-	if compass:
-		compass.setup_compass(player, home_ref, planets_ref, sun_ref)
+	#if compass:
+		#compass.setup_compass(player, home_ref, planets_ref, sun_ref)
 
 func _process(_delta: float) -> void:
+	
+	#update_points_display()
 	# This does nothing if the player is not valid.
 	if not is_instance_valid(player):
 		return
 
 	# update_boost_power_display()
-	update_boosts_display()
-	update_points_display()
+	#update_boosts_display()
 
 func _on_score_changed(new_score: int) -> void:
 	# This updates the score and creates a flash effect.
@@ -166,11 +167,10 @@ func update_level_goal_display() -> void:
 	var level_goal_text = "Level "+comma_separated_string(current_level)+" | Goal: " +comma_separated_string(current_goal)
 	level_goal_label.text = level_goal_text
 
-func update_boosts_display() -> void:
+func update_boosts_display(new_count : int) -> void:
 	# This updates the text for available boosts.
-	if player:
-		var boost_text = comma_separated_string(player.BoostCount)
-		boosts_label.text = boost_text
+	var boost_text = comma_separated_string(new_count)
+	boosts_label.text = boost_text
 
 func update_boost_power_display() -> void:
 	# This shows and updates the launch power while aiming.
@@ -190,10 +190,9 @@ static func comma_separated_string(num : int):
 			string = string.insert(len(str(num))-itr, ",")
 	return string
 
-func update_points_display() -> void:
-	if player:
-		var points_text = comma_separated_string(PointsManager.points) + " * [color=red]" + comma_separated_string(PointsManager.mult) + "[/color]"
-		points_label.text = points_text
+func update_points_display(points : int, mult : int) -> void:
+	var points_text = comma_separated_string(points) + " * [color=red]" + comma_separated_string(mult) + "[/color]"
+	points_label.text = points_text
 
 func update_collectable_counts() -> void:
 	# This gets the latest counts from the controller and updates the counter UI.

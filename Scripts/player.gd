@@ -1,90 +1,91 @@
 extends RigidBody2D
 class_name Player
+
+#Onready vars (components, managers, and need-to-have refs)
+#Audio Handlers
 @onready var audioHandler: PlayerAudioHandler = $AudioHandler
-# The trail effects
+@onready var grind_audio: AudioStreamPlayer2D = $GrindAudio
+##Where to spawn point numbers
 @onready var point_numbers_spawnpoint: Marker2D = $PointNumbersOrigin
+##Detects if you are still in range of a grindable surface
 @onready var grind_detector: Area2D = $GrindDetector
 @onready var grind_snap_ray: RayCast2D = $GrindSnapRay
-@onready var grind_audio: AudioStreamPlayer2D = $GrindAudio
 
-#region Ship Stats
-@export var debug_speed : float = 5000
-
-# This tracks the maximum number of skips the player can have.
-var max_skips_per_orbit: int = 1
-# This tracks the current number of available skips.
-var current_skips_available: int = 0
-var dead : bool = false
-# A cooldown for launching. TTDG: I use it to make sure releasing fast doesn't use a boost.
-const LAUNCH_COOLDOWN_TIME : float = 0.3
-
-var canBoost : bool = false
-var canSkip : bool = true
-# Flag to double launch if on planet
-var onPlanet : bool = false
-
-#endregion
-
-# Trail effect properties
+#Managers for non-sprite visuals
 @onready var trail_manager: ShipTrailManager = $TrailManager
+@onready var aim_manager: VisTrajectoryManager = $AimManager
 
-var hud : GameHUD #= get_tree().root.get_node("Game/HUDLayer/GameHUD")
+#Particles
+@onready var _LaunchParticles: ParticleEffect = $LaunchParticles
+@onready var _BoostParticles: ParticleEffect = $BoostParticles
+@onready var grind_particles: CPUParticles2D = $GrindParticles
+#@onready var Shape: CollisionShape2D = $CollisionShape2D #I don't think this is needed
+@onready var Sprite: Sprite2D = $Sprite2D
+@onready var camera_2d: ScreenShake = $Camera2D
 
-# This defines a set of named states for the player's state machine.
+#       --------------------
+
+@export_category("Ship Stats")
+## Launch power
+@export var launch_power: float = 5.0
+## Maximum drag distance (100% power).
+@export var max_pull_distance: float = 300.0
+## The boost impulse strength.
+@export var boost_strength: float = 1500.0
+## A cooldown for launching. Used to make sure releasing fast doesn't use a boost.
+@export var LAUNCH_COOLDOWN_TIME : float = 0.3
+
+
+
+@export_category("Debug Settings")
+@export var debug_speed : float = 5000
+@export var DEBUG_do_softlock_save : bool = true
+@export var DEBUG_DoLoseCondition : bool = true
+
+
+@export_category("Softlock Settings")
+##How slow (in px/second?) you have to be going in order for the softlock system to detect you.
+@export var softlock_sensitivity = 50
+##How long (in seconds) you have to be going the speed defined in softlock_sensitivity in order for an asteroid to save you.
+@export var SoftlockTime : float = 2
+static var softlockTimer : SceneTreeTimer
+static var isBeingSaved : bool = false
+static var doNotSave : bool = false
+
+@export_category("Orbit Settings")
+##How far around you have to go around planets to score them
+@export_range(0.0, 1.0) var orbit_completion_percentage: float = 0.95 # 95%
+# This tracks the maximum number of skips the player can have.
+@export var max_skips_per_orbit: int = 1
+
+# Defines a set of named states for the player's state machine.
 enum State {
 	READY_TO_AIM,
 	AIMING,
 	LAUNCHED
 }
 
-# Aim Manager for showing the lines and stuff while aiming.
-@onready var aim_manager: VisTrajectoryManager = $AimManager
-
-@onready var Shape: CollisionShape2D = $CollisionShape2D
-@export var DEBUG_do_softlock_save : bool = true
-@export var softlock_sensitivity = 50
-
-@export_category("Orbit Settings")
-@export_range(0.0, 1.0) var orbit_completion_percentage: float = 0.95 # 95%
-
-@export var SoftlockTime : float = 2
-@export var DEBUG_DoLoseCondition : bool = true
-# The particles
-@onready var _LaunchParticles: ParticleEffect = $LaunchParticles
-@onready var _BoostParticles: ParticleEffect = $BoostParticles
-@onready var grind_particles: CPUParticles2D = $GrindParticles
-
-# The sprite
-@onready var Sprite: Sprite2D = $Sprite2D
-# The Camera
-@onready var camera_2d: ScreenShake = $Camera2D
-
-# This exports a variable for launch power, tunable in the Inspector.
-@export var launch_power: float = 10.0
-# This exports a variable for the maximum drag distance (100% power).
-@export var max_pull_distance: float = 200.0
-# This exports a variable for the boost impulse strength.
-@export var boost_strength: float = 1000.0
-
-#defines how fast a click should be. I use 0.2 in another game just fine.
-#const CLICK_TIME : float = 0.2
-
-# The variable that counts your loop streak
-var loopCounter : int = 0
-var highScore : int = 0
-
-# Track planets that have been orbited for first-time bonus
-var orbited_planets: Array[BasePlanet] = []
-
-# This array will keep track of all planets whose gravity fields the player is currently inside.
-var overlapping_planets: Array[BasePlanet] = []
-
-## Used for the background paralax
-static var Position : Vector2
-
-# This variable will hold the player's current state from the enum above.
+#Ship State
+## Holds the player's current state from the State enum.
 var current_state: State = State.READY_TO_AIM
-# This boolean tracks if the one-time boost is still available.
+## Tracks planets that have been orbited for first-time bonus
+var orbited_planets: Array[BasePlanet] = []
+## Keeps track of all planets whose gravity fields the player is currently inside.
+var overlapping_planets: Array[BasePlanet] = []
+##Flag for if boosting is an option
+var canBoost : bool = false
+##Flag for if skipping is an option
+var canSkip : bool = true
+## Flag for if ship has landed (on a planet/shop/etc)
+var landed : bool = false
+# This tracks the current number of available skips.
+var current_skips_available: int = 0
+
+## Used for the background paralax and compass. Static for access from anywhere.
+static var Position : Vector2
+static var Rotation : float
+
+## Tracks how many boosts are still available. Updates sprite and emits explosion particles if set to 0.
 var BoostCount: int = 3:
 	get: return BoostCount
 	set(value):
@@ -100,60 +101,59 @@ var BoostCount: int = 3:
 		else:
 			# Sets the sprite frame to indicate boosts are available.
 			Sprite.frame_coords.y = 0
-
-# This new variable will store the calculated pull vector while aiming.
+		HudLayer.game_hud.update_boosts_display(BoostCount)
+		
+## Stores the calculated pull vector while aiming.
 var _current_aim_pull_vector: Vector2 = Vector2.ZERO
 
-# Stores whether a single touch is happening on mobile.
-var any_fingies_down : bool = false
-
 # Lose condition variables
-static var max_distance_from_origin: float = 35000.0  # Maximum distance before losing
-var origin_position: Vector2 = Vector2.ZERO # No longer static, can be changed.
+## Maximum distance before losing. Static for access from anywhere.
+static var max_distance_from_origin: float = 35000.0
+##Where to measure from when checking max_distance_from_origin
+var origin_position: Vector2 = Vector2.ZERO
+##Whether the player has met the lose condition
 var has_lost: bool = false
 
-# This function allows the GameController to tell the player where its "home" is.
-func set_origin_point(new_origin: Vector2):
-	# This sets the center point for the lose condition distance check.
-	origin_position = new_origin
-
-
-
-# This section is for the new orbit tracking logic.
+#Orbit tracking
 var current_orbiting_planet: BasePlanet = null
 var last_angle_to_planet: float = 0.0
 var accumulated_orbit_angle: float = 0.0
 var orbit_start_angle: float = 0.0  # Angle where orbit started
 
-var mobilePosition : Vector2
 
-var singleTouchProcessed : bool = false
+#Input
 var mouseReleased = true
 var initialClickPos : Vector2
 var aim_canceled : bool = false
+
+#Mobile controls
+
+#used for mobile controls. Need to refactor with mobile controls tied to the player, not the hud.
+#var hud : GameHUD #= get_tree().root.get_node("Game/HUDLayer/GameHUD")
+## Stores whether at least one touch is happening for mobile controls.
+var any_fingies_down : bool = false
+var mobilePosition : Vector2
+var singleTouchProcessed : bool = false
 var mobileBrake : bool = false
 var mobileBoost : bool = false
 var has_boosted_this_touch : bool = false
 
 
-static var softlockTimer : SceneTreeTimer
-static var isBeingSaved : bool = false
-@export var softlockTime : float = 3.0
-static var doNotSave : bool = false
+
 
 #region Godot funcs
 func _ready() -> void:
-	hud = get_tree().root.get_node("Game/HUDLayer/GameHUD")
-	#TutorialManager.show_how_to_play(hud)
-	
-	if(hud):
-		#setup mobile boost/brake buttons
-		hud.mobile_controls.primary.pressed.connect(func(): 
-			if(current_state == State.LAUNCHED):
-				mobileBoost = true)
-		hud.mobile_controls.secondary.pressed.connect(func(): 
-			if(current_state == State.LAUNCHED):
-				mobileBrake = true)
+	#hud = get_tree().root.get_node("Game/HUDLayer/GameHUD")
+	##TutorialManager.show_how_to_play(hud)
+	#
+	#if(hud):
+		##setup mobile boost/brake buttons
+		#hud.mobile_controls.primary.pressed.connect(func(): 
+			#if(current_state == State.LAUNCHED):
+				#mobileBoost = true)
+		#hud.mobile_controls.secondary.pressed.connect(func(): 
+			#if(current_state == State.LAUNCHED):
+				#mobileBrake = true)
 	
 	# setup damp mode
 	linear_damp_mode = RigidBody2D.DAMP_MODE_COMBINE
@@ -179,6 +179,7 @@ func _process(_delta: float) -> void:
 
 	# Updates player's global position for background parallax.
 	Position = global_position
+	Rotation = rotation
 	
 	_handle_launch_canceled()
 	_handle_aiming()
@@ -200,12 +201,11 @@ func _physics_process(_delta: float) -> void:
 	_check_lose_condition()
 	
 	if is_inside_tree():
-		# Moves the player and checks for collisions.
-		#var collision : KinematicCollision2D = 
+		# Checks for collisions.
 		_handle_collision(move_and_collide(linear_velocity.normalized(), true))
 			
 			
-	_handle_launched_state()
+		_handle_launched_state()
 #endregion
 
 #region Customization
@@ -222,8 +222,13 @@ func _on_ship_color_changed(_new_color: Color) -> void:
 #endregion
 
 #region Game Logic
+## This function allows the GameController to tell the player where its "home" is.
+func set_origin_point(new_origin: Vector2):
+	# This sets the center point for the lose condition distance check.
+	origin_position = new_origin
+
 func _handle_softlock():
-	if(not onPlanet and BoostCount == 0 and current_state == State.LAUNCHED and (linear_velocity.length() < softlock_sensitivity) and not isBeingSaved):
+	if(not landed and BoostCount == 0 and current_state == State.LAUNCHED and (linear_velocity.length() < softlock_sensitivity) and not isBeingSaved):
 		if(not doNotSave):
 			isBeingSaved = true
 			if(not softlockTimer):
@@ -233,8 +238,8 @@ func _handle_softlock():
 				)
 		else:
 			doNotSave = false
-	elif not onPlanet and BoostCount > 0 and current_state == State.LAUNCHED and (linear_velocity.length() < 5) and not isBeingSaved:
-		get_tree().create_timer(5).timeout.connect(func(): TutorialManager.show_stuck_with_boosts(hud))
+	#elif not landed and BoostCount > 0 and current_state == State.LAUNCHED and (linear_velocity.length() < 5) and not isBeingSaved:
+		#get_tree().create_timer(5).timeout.connect(func(): TutorialManager.show_stuck_with_boosts(hud))
 
 func _handle_launched_state():
 	# This block runs only when the player has been launched and is in motion.
@@ -416,7 +421,7 @@ func launch() -> void:
 	var final_pull_vector = _current_aim_pull_vector
 	
 	# Sets the player's initial velocity based on the stored pull vector and launch power.  THIS IS THE FREAKING LAUNCH CODE
-	linear_velocity = final_pull_vector * launch_power * (4.0 if onPlanet else 2.5)
+	linear_velocity = final_pull_vector * launch_power * (4.0 if landed else 2.5)
 	
 	# Changes the state to LAUNCHED.
 	current_state = State.LAUNCHED
@@ -428,8 +433,8 @@ func launch() -> void:
 	_LaunchParticles.Emit()
 	
 	# If on the planet and boosting, handles getting off the planet after physics calculations.
-	if(onPlanet):
-		onPlanet = false
+	if(landed):
+		landed = false
 			
 	audioHandler.PlaySoundAtGlobalPosition(Sounds.Launch, global_position)
 
@@ -453,7 +458,7 @@ func apply_boost() -> void:
 	# Provides visual feedback that the boost was used.
 	_BoostParticles.Emit(true)
 	trail_manager.apply_boost_trail_effect()
-
+	
 	camera_2d.Shake()
 	audioHandler.PlaySoundAtGlobalPosition(Sounds.Boost, global_position)
 	
@@ -462,7 +467,7 @@ func land():
 	angular_velocity = 0.0
 	audioHandler.PlaySoundAtGlobalPosition(Sounds.ShipCollide, global_position)
 	Reset()
-	onPlanet = true
+	landed = true
 
 ## Resets player state for a new launch or game attempt.
 func Reset():
@@ -470,8 +475,8 @@ func Reset():
 	Sprite.frame_coords.y = 0
 	#get ready to launch
 	current_state = State.READY_TO_AIM
-	if(is_instance_valid(hud)):
-		hud.mobile_controls.set_ready_to_launch(true)
+	#if(is_instance_valid(hud)):
+		#hud.mobile_controls.set_ready_to_launch(true)
 	
 	#reset orbit amount
 	accumulated_orbit_angle = 0.0
@@ -490,7 +495,8 @@ func Reset():
 	
 	#resets the known orbited planets
 	for planet : BasePlanet in orbited_planets:
-		planet.SetShowOrbited(false)
+		if(is_instance_valid(planet)):
+			planet.SetShowOrbited(false)
 	orbited_planets.clear()
 	
 	# reset trail effects
@@ -498,7 +504,6 @@ func Reset():
 
 
 func Explode(_position : Vector2):
-	dead = true
 	Sprite.hide()
 	$CollisionShape2D.hide()
 	linear_damp = 10
@@ -509,10 +514,10 @@ func Explode(_position : Vector2):
 	
 #region Input handling
 func _handle_launch_canceled():
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and onPlanet:
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and landed:
 		aim_canceled = true
 		current_state = State.READY_TO_AIM
-		hud.mobile_controls.set_ready_to_launch(false)
+		#hud.mobile_controls.set_ready_to_launch(false)
 		update_aim_line()
 		pass
 func _handle_debug_input():
@@ -521,10 +526,10 @@ func _handle_debug_input():
 	if(debug_movement.length()>0):
 		linear_velocity = debug_movement * debug_speed
 	
-	if Input.is_action_just_pressed("DEBUG-RESET_LAUNCH"):
-		current_state = State.READY_TO_AIM
-		grinding = null
-		BoostCount = 4
+	#if Input.is_action_just_pressed("DEBUG-RESET_LAUNCH"):
+		#current_state = State.READY_TO_AIM
+		#grinding = null
+		#BoostCount = 4
 	
 	pass
 func _handle_launching():
@@ -533,8 +538,8 @@ func _handle_launching():
 		# Calls the function to launch the player using the stored aim vector.
 		launch()
 		#check because mobile controls don't exist in the testing scene
-		if(is_instance_valid(hud)):
-			hud.mobile_controls.set_ready_to_launch(false)
+		#if(is_instance_valid(hud)):
+			#hud.mobile_controls.set_ready_to_launch(false)
 
 func _handle_mobile_input():
 	if(GameManager.IsMobile):
@@ -625,6 +630,7 @@ func update_aim_line() -> void:
 #endregion
 
 #region Collision (Planets/Asteroids)
+
 func _handle_collision(collision : KinematicCollision2D):
 	#print(grinding)
 	
@@ -672,7 +678,7 @@ func _handle_collision(collision : KinematicCollision2D):
 		var collider = collision.get_collider()
 		# Checks if the collided object's owner is a planet.
 		if collider.owner is BasePlanet:
-			if(!onPlanet):
+			if(!landed):
 				if collider.owner is HomePlanet:
 					_handle_landing_on_shop()
 				else:
@@ -728,7 +734,6 @@ func _handle_colliding_with_grind_girder(collision : KinematicCollision2D):
 ## Handles collision with a home planet (shop).
 func _handle_landing_on_shop():
 	# Resets the loop counter and clears the trails.
-	loopCounter = 0
 	trail_manager.reset()
 	
 	# Calculates the final score upon returning home.
@@ -758,7 +763,6 @@ func _handle_landing_on_planet(collider):
 		
 	else:
 		# This handles crashing into a regular planet.
-		loopCounter = 0
 		
 		trail_manager.reset()
 		

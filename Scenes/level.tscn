@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://dmbrkrs5phqe0"]
 
 [ext_resource type="Script" uid="uid://by6pk8ix075tr" path="res://Scripts/tools/level.gd" id="1_tumq0"]
-[ext_resource type="PackedScene" uid="uid://vuorl2ga7vdk" path="res://Scenes/planet_medium.tscn" id="2_wqkje"]
-[ext_resource type="PackedScene" uid="uid://d1rrwaam8e5cr" path="res://Scenes/planet_small.tscn" id="5_wqkje"]
+[ext_resource type="PackedScene" uid="uid://vuorl2ga7vdk" path="res://Scenes/WorldGen/WorldObjects/planet_medium.tscn" id="2_wqkje"]
+[ext_resource type="PackedScene" uid="uid://d1rrwaam8e5cr" path="res://Scenes/WorldGen/WorldObjects/planet_small.tscn" id="5_wqkje"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8c0lf"]
 

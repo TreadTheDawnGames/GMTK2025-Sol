@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://co04cd6y6covq"]
+
+[ext_resource type="Script" uid="uid://bnldy5nsemnof" path="res://Scripts/WorldGen/biome.gd" id="1_h50ho"]
+
+[node name="Biome" type="Node2D"]
+script = ExtResource("1_h50ho")

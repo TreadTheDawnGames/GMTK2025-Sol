@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://bboxrx01e6vus"]
 
-[ext_resource type="Script" uid="uid://bduti2use3hpd" path="res://Scenes/ScoringObjects/ram_vines.gd" id="1_h5edo"]
-[ext_resource type="PackedScene" uid="uid://drmayofxbyw6k" path="res://Scenes/ScoringObjects/vine_segment.tscn" id="2_h5edo"]
+[ext_resource type="Script" uid="uid://bduti2use3hpd" path="res://Scenes/WorldGen/WorldObjects/ram_vines.gd" id="1_h5edo"]
+[ext_resource type="PackedScene" uid="uid://drmayofxbyw6k" path="res://Scenes/WorldGen/WorldObjects/vine_segment.tscn" id="2_h5edo"]
 [ext_resource type="Texture2D" uid="uid://druarxrb3dvkn" path="res://Assets/Non-kenney/SkidGirder-Ugly.png" id="3_02kjw"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8esyn"]

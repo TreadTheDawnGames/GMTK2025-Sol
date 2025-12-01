@@ -1,11 +1,12 @@
 extends Control
+class_name Compass
 
 #@onready var home_icon: TextureRect = %HomeIcon
 @onready var planet_icons_container: Control = %PlanetIcons
 #@onready var player_dot: TextureRect = %PlayerDot
 
-var player: RigidBody2D
-var home_planet: Area2D
+#var player: RigidBody2D
+#var home_planet: Area2D
 var planets: Array[Area2D] = []
 var planet_icons: Array[TextureRect] = []
 var shop_icons: Array[TextureRect] = []
@@ -34,14 +35,19 @@ func _ready():
 	background.modulate = Color(0.1, 0.1, 0.2, 0.8)
 	#setup_player_dot()
 
-func setup_compass(player_ref: RigidBody2D, home_ref: Area2D, planets_ref: Array[Area2D], sun_ref: Area2D):
-	player = player_ref
-	home_planet = home_ref
+func setup_compass(planets_ref: Array[Area2D], sun_ref: Area2D):
+	#player = player_ref
+	#home_planet = home_ref
+	#planets.clear()
 	planets = planets_ref
 	sun = sun_ref
+	print("setting up compass")
+	
 	create_planet_and_indicator_icons()
 	create_shop_icons()
-	create_sun_icon()
+	
+	if(sun):
+		create_sun_icon()
 
 #func setup_player_dot():
 	#if not player_dot:
@@ -86,6 +92,7 @@ func create_planet_and_indicator_icons():
 		indicator_icon.visible = false # This hides it by default.
 		planet_icons_container.add_child(indicator_icon)
 		collectable_indicator_icons.append(indicator_icon)
+	
 
 func create_shop_icons():
 	# This function creates icons for home planets (shops).
@@ -114,29 +121,34 @@ func create_sun_icon():
 	planet_icons_container.move_child(sun_icon, 0)
 
 func _process(_delta):
-	if not is_instance_valid(player) or not is_instance_valid(home_planet):
-		return
+	#if  not is_instance_valid(home_planet): #not is_instance_valid(player) or
+		#return
 	update_map()
 
 func update_map():
-	var player_pos = player.global_position
+	var player_pos = Player.Position
 	#update_icon_position(home_icon, home_planet.global_position, player_pos)
 	
-	center_ship.rotation = player.rotation + deg_to_rad(90)
+	center_ship.rotation = Player.Rotation + deg_to_rad(90)
 	
-	update_sun_icon_position(sun_icon, sun, player_pos)
+	if(sun):
+		update_sun_icon_position(sun_icon, sun, player_pos)
 	
 	for i in range(min(planets.size(), planet_icons.size())):
 		if is_instance_valid(planets[i]) and is_instance_valid(planet_icons[i]):
 			var planet = planets[i]
 			var planet_icon = planet_icons[i]
 			
-			# Hide regular planet icons - only show home planets and collectables
-			planet_icon.visible = false
+			# Show all planets
+			planet_icon.visible = true
 
-			# This updates the shop icon position.
-			if i < shop_icons.size() and is_instance_valid(shop_icons[i]):
-				update_shop_icon_position(shop_icons[i], planet, player_pos)
+			if(planet is HomePlanet):
+				# This updates the shop icon position.
+				if i < shop_icons.size() and is_instance_valid(shop_icons[i]):
+					update_shop_icon_position(shop_icons[i], planet, player_pos)
+
+			elif (planet is not Planet_Sol) and  i < planet_icons.size() and is_instance_valid(planet_icons[i]):
+				update_icon_position(planet_icons[i], planet.global_position, player_pos)
 
 			# This is the logic for the collectable indicator.
 			if i < collectable_indicator_icons.size() and is_instance_valid(collectable_indicator_icons[i]):

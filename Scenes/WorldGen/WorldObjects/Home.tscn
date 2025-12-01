@@ -181,7 +181,7 @@ shape = SubResource("CircleShape2D_gravity")
 
 [node name="Sprite2D" type="Sprite2D" parent="CollisionShape2D"]
 material = SubResource("ShaderMaterial_dgjnp")
-scale = Vector2(5.38574, 5.38574)
+scale = Vector2(5.385735, 5.385735)
 texture = ExtResource("5_bpuqj")
 script = ExtResource("6_xlxvy")
 

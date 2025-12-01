@@ -106,6 +106,9 @@ label_settings = SubResource("LabelSettings_4y6w4")
 [node name="Compass" parent="." instance=ExtResource("2_compass")]
 unique_name_in_owner = true
 layout_mode = 1
+map_radius = null
+map_scale = null
+planet_range_threshold = null
 
 [node name="ObjectivesPanel" parent="." instance=ExtResource("3_objectives")]
 visible = false

@@ -31,6 +31,7 @@ PointNumbers="*res://Scripts/PointNumbers.gd"
 TouchHelper="*res://Scripts/UI/touch_helper.gd"
 TutorialManager="*res://Scripts/TutorialManager.gd"
 PointsManager="*res://Scenes/globals/PointsManager.tscn"
+HudLayer="*res://Scenes/UI/hud_layer.tscn"
 
 [display]
 

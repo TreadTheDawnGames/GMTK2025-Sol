@@ -3,7 +3,7 @@ class_name Manager_Points
 
 # Scoring system variables
 var points : int = 0  # Points earned from orbiting planets
-var mult : int = 0    # Multiplier from entering gravity fields and skips
+var mult : int = 1    # Multiplier from entering gravity fields and skips
 var final_score : int = 0  # Calculated when crashing
 var spawnpoint : Marker2D
 @onready var audio_handler: PlayerAudioHandler = $PlayerAudioHandler
@@ -31,20 +31,25 @@ func calculate_final_score() -> void:
 func add_points(_points : int):
 	points += _points
 	PointNumbers.display_number(_points, spawnpoint.global_position, 0)
-
+	HudLayer.game_hud.update_points_display(points, mult)
+	
 func mult_points(_points : int):
 	points *= _points
-	PointNumbers.display_number(_points, spawnpoint.global_position, 0)
+	PointNumbers.display_number(points/_points, spawnpoint.global_position, 0)
+	HudLayer.game_hud.update_points_display(points, mult)
 
 func add_mult(_mult : int):
 	mult += _mult
 	PointNumbers.display_number(_mult, spawnpoint.global_position, 1)
+	HudLayer.game_hud.update_points_display(points, mult)
 
 func multiply_mult(_mult : int):
 	mult *= _mult
-	PointNumbers.display_number(_mult, spawnpoint.global_position, 1)
+	PointNumbers.display_number(mult/_mult, spawnpoint.global_position, 1)
+	HudLayer.game_hud.update_points_display(points, mult)
 
 func reset():
 	points = 0
 	mult = 1
 	final_score = 0
+	HudLayer.game_hud.update_points_display(points, mult)

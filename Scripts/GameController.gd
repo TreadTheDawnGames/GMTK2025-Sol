@@ -43,12 +43,12 @@ var victory_sequence_active: bool = false
 @export_category("Level Generation")
 # The scenes for planets that can be randomly spawned.
 @export var planet_scenes: Array[PackedScene] = [
-	preload("res://Scenes/planet_small.tscn"),
-	preload("res://Scenes/planet_medium.tscn"),
-	preload("res://Scenes/planet_large.tscn")
+	#preload("res://Scenes/planet_small.tscn"),
+	#preload("res://Scenes/planet_medium.tscn"),
+	#preload("res://Scenes/planet_large.tscn")
 ]
 # The scene for the nebula visual effect.
-@export var nebula_scene: PackedScene = preload("res://Scenes/ScoringObjects/Nebula.tscn")
+@export var nebula_scene: PackedScene #= preload("res://Scenes/ScoringObjects/Nebula.tscn")
 # The maximum radius from the center (0,0) where planets can spawn.
 @export var spawn_radius: float = 30000.0
 # The number of nebulas to spawn.
@@ -63,11 +63,11 @@ var victory_sequence_active: bool = false
 # --- Special Celestial Body Settings ---
 @export_category("Special Objects")
 # The scene for the Sun, which will be placed at the center.
-@export var sun_scene: PackedScene = preload("res://Scenes/planet_Sol.tscn")
+@export var sun_scene: PackedScene# = preload("res://Scenes/planet_Sol.tscn")
 # The scene for the Black Hole, placed randomly.
 #@export var black_hole_scene: PackedScene = preload("res://Scenes/planet_black_hole.tscn")
 # The scene for additional Home Stations/Shops.
-@export var station_scene: PackedScene = preload("res://Scenes/Home.tscn")
+@export var station_scene: PackedScene #= preload("res://Scenes/Home.tscn")
 # The number of ADDITIONAL random stations to spawn (on top of the main HomeBase).
 @export var num_additional_stations: int = 2
 # The extra empty space required around stations to prevent them from feeling crowded.

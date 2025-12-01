@@ -3,7 +3,7 @@ extends Area2D
 class_name BasePlanet
 
 # This preloads the satellite scene so it can be spawned from code.
-const SATELLITE_SCENE = preload("res://Scenes/ScoringObjects/Satellite.tscn")
+const SATELLITE_SCENE = preload("uid://c4wdc114mt4gb")
 
 # This exports a variable to the Godot editor, allowing to change it without code.
 @export var gravity_strength: float = 4000.0
@@ -23,6 +23,7 @@ var bodies_in_gravity_field: Array[RigidBody2D] = []
 var current_orbiting_player: Player = null
 var orbit_radius: float = 0.0
 
+## Whether to give points for orbiting this planet.
 @export var has_points: bool = true
 
 # This section controls collectable spawning
@@ -141,7 +142,7 @@ func _physics_process(_delta: float) -> void:
 	# This loops through every body currently stored in the array.
 	for body in bodies_in_gravity_field:
 		# This calculates the direction from the body towards this planet.
-		if(body is Player and not body.onPlanet):
+		if(body is Player and not body.landed):
 			var direction_to_planet = (global_position - body.global_position).normalized()
 			var distance = global_position.distance_to(body.global_position)
 			var gravity_falloff = collision_shape_2d.shape.radius / distance

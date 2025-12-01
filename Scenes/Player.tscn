@@ -14,7 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://ceetw8dkqfdua" path="res://Assets/kenney_simple-space/AAA-ChosenKenney/ship_K.png" id="9_megsn"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_52ee3"]
-bounce = 43.4
+bounce = 0.5
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_ksbbd"]
 diffuse_texture = ExtResource("2_ship_tex")
@@ -69,9 +69,6 @@ continuous_cd = 2
 contact_monitor = true
 max_contacts_reported = 1
 script = ExtResource("1_player")
-launch_power = 400.0
-max_pull_distance = 300.0
-boost_strength = 1500.0
 
 [node name="TrailManager" type="Node2D" parent="."]
 script = ExtResource("2_yoq75")

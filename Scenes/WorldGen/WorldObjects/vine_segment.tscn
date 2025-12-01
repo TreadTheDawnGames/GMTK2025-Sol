@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://drmayofxbyw6k"]
 
-[ext_resource type="Script" uid="uid://dnaf2m32vkqck" path="res://Scenes/ScoringObjects/vine_segment.gd" id="1_ll5ly"]
+[ext_resource type="Script" uid="uid://dnaf2m32vkqck" path="res://Scenes/WorldGen/WorldObjects/vine_segment.gd" id="1_ll5ly"]
 [ext_resource type="Texture2D" uid="uid://d1eia2wf2b3ar" path="res://Assets/Non-kenney/Vines.png" id="1_t768d"]
 [ext_resource type="Texture2D" uid="uid://bh3yc2cptyvro" path="res://Assets/Non-kenney/LeafParticle.png" id="3_ochil"]
 [ext_resource type="Script" uid="uid://dwottdnvtkjgy" path="res://Scripts/particle_effect.gd" id="4_0r8o1"]
